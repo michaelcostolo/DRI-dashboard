@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DRI Trade Study Dashboard</title>
+    <style>
+:root {
+  color-scheme: dark;
+  --bg: #08111f;
+  --bg-elevated: rgba(14, 25, 42, 0.92);
+  --bg-soft: rgba(22, 39, 64, 0.9);
+  --border: rgba(135, 161, 208, 0.2);
+  --text: #eef4ff;
+  --muted: #9db1cf;
+  --accent: #59d0ff;
+  --accent-2: #ffd166;
+  --success: #86efac;
+  --danger: #fca5a5;
+  --cool: #66d9ff;
+  --bolo: #ff9f6e;
+  --grid: rgba(157, 177, 207, 0.18);
+  --shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(89, 208, 255, 0.12), transparent 32%),
+    radial-gradient(circle at top right, rgba(255, 209, 102, 0.08), transparent 28%),
+    linear-gradient(180deg, #07101d 0%, #0b1526 100%);
+  color: var(--text);
+}
+
+.app-shell {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 32px 20px 56px;
+}
+
+.hero,
+.panel {
+  backdrop-filter: blur(18px);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.hero {
+  border-radius: 28px;
+  padding: 28px 32px;
+  display: block;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(1.8rem, 2vw + 1rem, 3rem);
+  line-height: 1.05;
+  max-width: none;
+}
+
+.hero-copy {
+  margin-top: 14px;
+  max-width: none;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.panel {
+  border-radius: 24px;
+  padding: 22px;
+}
+
+.presets-panel {
+  grid-column: 1;
+}
+
+.system-controls {
+  grid-column: 1;
+}
+
+.chart-panel {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.summary {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.assumptions {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.model-details {
+  grid-column: 2;
+  grid-row: 4;
+}
+
+.panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.panel-header p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.panel-header-inline {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.controls-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.panel-subsection {
+  margin-top: 18px;
+}
+
+.panel-header-compact {
+  margin-bottom: 14px;
+}
+
+.panel-header-compact h3 {
+  margin: 0;
+}
+
+.action-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.action-button {
+  appearance: none;
+  border: 1px solid rgba(89, 208, 255, 0.22);
+  background: linear-gradient(180deg, rgba(89, 208, 255, 0.16), rgba(255, 209, 102, 0.08));
+  color: var(--text);
+  border-radius: 14px;
+  padding: 11px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(89, 208, 255, 0.34);
+}
+
+.action-button-secondary {
+  background: rgba(157, 177, 207, 0.08);
+  border-color: rgba(157, 177, 207, 0.18);
+}
+
+.action-button-small {
+  padding: 9px 12px;
+  font-size: 0.9rem;
+}
+
+.status-note,
+.storage-note {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 14px 0 0;
+}
+
+.status-note {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(89, 208, 255, 0.08);
+  border: 1px solid rgba(89, 208, 255, 0.14);
+}
+
+.scenario-save {
+  margin-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.field-label {
+  font-weight: 600;
+}
+
+.inline-action {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.inline-action-multi {
+  grid-template-columns: 1fr auto auto;
+}
+
+.text-input,
+.select-input {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(135, 161, 208, 0.16);
+  background: var(--bg-soft);
+  color: var(--text);
+  padding: 11px 13px;
+  font: inherit;
+}
+
+.select-input {
+  appearance: none;
+}
+
+.system-controls-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.system-parameter-card {
+  padding: 16px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(18, 33, 56, 0.95), rgba(12, 23, 39, 0.92));
+  border: 1px solid rgba(135, 161, 208, 0.16);
+}
+
+.system-parameter-card.cool {
+  border-left: 4px solid var(--cool);
+}
+
+.system-parameter-card.bolo {
+  border-left: 4px solid var(--bolo);
+}
+
+.system-parameter-header {
+  margin-bottom: 14px;
+}
+
+.system-parameter-header h3 {
+  margin-bottom: 6px;
+}
+
+.system-parameter-header p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.control {
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--bg-soft);
+  border: 1px solid rgba(135, 161, 208, 0.16);
+}
+
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.control label {
+  font-weight: 600;
+}
+
+.control .value {
+  color: var(--accent-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.control input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.control .help {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.metric-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.metric-card {
+  border-radius: 18px;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(18, 33, 56, 0.95), rgba(12, 23, 39, 0.92));
+  border: 1px solid rgba(135, 161, 208, 0.16);
+}
+
+.metric-card.cool {
+  border-left: 4px solid var(--cool);
+}
+
+.metric-card.bolo {
+  border-left: 4px solid var(--bolo);
+}
+
+.metric-card h3 {
+  margin-bottom: 10px;
+}
+
+.metric-section {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(135, 161, 208, 0.12);
+}
+
+.metric-section h4 {
+  margin: 0 0 8px;
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
+.metric-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--muted);
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-line strong {
+  color: var(--text);
+  text-align: right;
+}
+
+.metric-line-emphasis {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(135, 161, 208, 0.12);
+}
+
+.summary-note {
+  margin: -4px 0 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(89, 208, 255, 0.08);
+  border: 1px solid rgba(89, 208, 255, 0.14);
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.chart-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.chart-card {
+  border-radius: 20px;
+  padding: 16px;
+  background: var(--bg-soft);
+  border: 1px solid rgba(135, 161, 208, 0.16);
+}
+
+.chart-card h3 {
+  margin-bottom: 0;
+}
+
+.chart-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.collapsible-content.is-collapsed {
+  display: none;
+}
+
+.mini-scorecard {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(135, 161, 208, 0.16);
+}
+
+.mini-scorecard h4 {
+  margin: 0 0 12px;
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
+.mini-score-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.mini-score-row {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.mini-score-row span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.mini-score-bar-track {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(157, 177, 207, 0.14);
+  overflow: hidden;
+}
+
+.mini-score-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.mini-score-value {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  min-width: 78px;
+  text-align: right;
+}
+
+.assumption-list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--muted);
+  display: grid;
+  gap: 12px;
+  line-height: 1.55;
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+@media (max-width: 1120px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-panel,
+  .presets-panel,
+  .system-controls,
+  .summary,
+  .assumptions,
+  .model-details {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 18px 14px 36px;
+  }
+
+  .hero {
+    flex-direction: column;
+    padding: 22px 20px;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .inline-action,
+  .chart-card-header {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+}
+
+</style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Sensor Trade Study</p>
+          <h1>DRI Dashboard: Cooled MWIR vs Uncooled Bolometer</h1>
+          <p class="hero-copy">
+            Explore how detector format, optics, thermal contrast, atmosphere,
+            and cost affect DRI performance for two representative infrared
+            systems.
+          </p>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel presets-panel">
+          <div class="panel-header">
+            <h2>Scenario Setup</h2>
+            <p>Set up the scene, apply comparison presets, save scenarios locally, and export or print the current view.</p>
+          </div>
+          <div class="action-grid">
+            <button id="reset-defaults-button" class="action-button">Reset to Defaults</button>
+            <button id="equal-ifov-button" class="action-button">Equal IFOV Comparison</button>
+            <button id="equal-hfov-button" class="action-button">Equal HFOV Comparison</button>
+          </div>
+          <p id="preset-status" class="status-note">Ready. Presets change only the current browser session until you save a scenario.</p>
+
+          <div class="panel-subsection">
+            <div class="panel-header panel-header-compact">
+              <h3>Scenario Inputs</h3>
+              <p>Set the shared target geometry and thermal scene conditions.</p>
+            </div>
+            <div id="shared-controls-grid" class="controls-grid"></div>
+          </div>
+
+          <div class="scenario-save">
+            <label for="scenario-name" class="field-label">Scenario Name</label>
+            <div class="inline-action">
+              <input id="scenario-name" class="text-input" type="text" placeholder="Enter a scenario name" />
+              <button id="save-scenario-button" class="action-button">Save Current Scenario</button>
+            </div>
+            <label for="saved-scenarios" class="field-label">Saved Scenarios</label>
+            <div class="inline-action inline-action-multi">
+              <select id="saved-scenarios" class="select-input"></select>
+              <button id="load-scenario-button" class="action-button">Load</button>
+              <button id="delete-scenario-button" class="action-button action-button-secondary">Delete</button>
+            </div>
+            <p class="storage-note">Saved scenarios are stored locally in this browser, not uploaded or synced.</p>
+          </div>
+
+          <div class="action-grid">
+            <button id="print-summary-button" class="action-button">Print / PDF Summary</button>
+          </div>
+          <p class="storage-note">If the print summary does not open, allow pop-ups for this page.</p>
+        </section>
+
+        <section class="panel system-controls">
+          <div class="panel-header">
+            <h2>Sensor Parameters</h2>
+            <p>
+              Each sensor now uses its own explicit pixel pitch, NETD, focal
+              length, detector format, f-number, atmospheric transmission, and cost so the trade space is driven
+              by interpretable physical inputs.
+            </p>
+          </div>
+          <div id="system-controls-grid" class="system-controls-grid"></div>
+        </section>
+
+        <section class="panel chart-panel">
+          <div class="panel-header">
+            <h2>DRI Performance Curves</h2>
+            <p>
+              Curves show effective task score versus range, using sensor
+              sampling and thermal SNR. Threshold lines mark the score levels
+              associated with detection, recognition, and identification.
+            </p>
+          </div>
+          <div class="chart-stack">
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <h3>Effective Task Score vs Range</h3>
+                <button id="export-range-chart-button" class="action-button action-button-small">Export Effective Task Score vs Range as PNG</button>
+              </div>
+              <svg id="range-chart" class="chart" viewBox="0 0 920 420" role="img" aria-label="DRI performance versus range"></svg>
+            </div>
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <h3>Estimated Task Range by Sensor</h3>
+                <button id="export-threshold-chart-button" class="action-button action-button-small">Export Estimated Task Range by Sensor as PNG</button>
+              </div>
+              <svg id="threshold-chart" class="chart" viewBox="0 0 920 420" role="img" aria-label="Threshold range comparison"></svg>
+            </div>
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <h3>Economics Comparison</h3>
+                <button id="export-economics-chart-button" class="action-button action-button-small">Export Economics Comparison as PNG</button>
+              </div>
+              <svg id="economics-chart" class="chart" viewBox="0 0 920 420" role="img" aria-label="Economics comparison"></svg>
+              <div class="mini-scorecard">
+                <h4>Weighted Performance per Dollar</h4>
+                <div id="weighted-performance-display" class="mini-score-grid"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel summary">
+          <div class="panel-header">
+            <h2>Current Performance</h2>
+            <p>Derived metrics combine geometric sampling, thermal SNR, smooth task probability, and cost.</p>
+          </div>
+          <p class="summary-note">
+            Detector format mainly affects field of view and scene coverage. For
+            boresight DRI in this first-order model, the dominant drivers are
+            IFOV, apparent contrast, and thermal SNR.
+          </p>
+          <div id="metric-cards" class="metric-grid"></div>
+        </section>
+
+        <section class="panel assumptions">
+          <div class="panel-header panel-header-inline">
+            <div>
+              <h2>Assumptions</h2>
+              <p>All modeling assumptions used by this version are listed explicitly below.</p>
+            </div>
+            <button id="assumptions-toggle" class="action-button action-button-small" aria-expanded="false">Show Assumptions</button>
+          </div>
+          <div id="assumptions-content" class="collapsible-content is-collapsed">
+            <ul id="assumptions-list" class="assumption-list"></ul>
+          </div>
+        </section>
+
+        <section class="panel model-details">
+          <div class="panel-header panel-header-inline">
+            <div>
+              <h2>Model Details</h2>
+              <p>The first-order equations used by the dashboard are shown here for traceability.</p>
+            </div>
+            <button id="model-details-toggle" class="action-button action-button-small" aria-expanded="false">Show Model Details</button>
+          </div>
+          <div id="model-details-content" class="collapsible-content is-collapsed">
+            <ul id="model-details-list" class="assumption-list"></ul>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+const STORAGE_KEY = "dri-dashboard-scenarios-v1";
+const sigmoidSlope = 1.35;
+const snrReference = 8;
+
+const sharedControls = [
+  {
+    key: "targetSize",
+    label: "Target Size",
+    unit: "m",
+    min: 0.5,
+    max: 10,
+    step: 0.1,
+    value: 2.3,
+    help: "Characteristic target dimension used for angular extent."
+  },
+  {
+    key: "range",
+    label: "Current Range",
+    unit: "m",
+    min: 100,
+    max: 20000,
+    step: 50,
+    value: 5000,
+    help: "Select a specific distance to evaluate both systems. The plots show performance across ranges; this slider selects the point used for the Current Performance metrics and Pd estimates."
+  },
+  {
+    key: "deltaT",
+    label: "Target-Background Delta T",
+    unit: "K",
+    min: 0.1,
+    max: 20,
+    step: 0.1,
+    value: 2,
+    help: "Apparent target-to-background temperature contrast."
+  }
+];
+
+const thresholds = [
+  { key: "detection", label: "Detection", linePairs: 1, color: "#86efac", weight: 0.2 },
+  { key: "recognition", label: "Recognition", linePairs: 4, color: "#ffd166", weight: 0.3 },
+  { key: "identification", label: "Identification", linePairs: 8, color: "#fca5a5", weight: 0.5 }
+];
+
+const systems = [
+  {
+    key: "cool",
+    label: "Cooled MWIR Parameters",
+    shortLabel: "Cooled MWIR",
+    color: "#66d9ff",
+    description: "Representative cooled MWIR focal plane with lower NETD and longer focal length optics.",
+    controls: [
+      {
+        key: "horizontalPixels",
+        label: "Horizontal Pixels",
+        unit: "px",
+        min: 320,
+        max: 4096,
+        step: 16,
+        value: 1280,
+        help: "Horizontal detector sample count."
+      },
+      {
+        key: "verticalPixels",
+        label: "Vertical Pixels",
+        unit: "px",
+        min: 256,
+        max: 2160,
+        step: 16,
+        value: 1024,
+        help: "Vertical detector sample count."
+      },
+      {
+        key: "pixelPitch",
+        label: "Pixel Pitch",
+        unit: "um",
+        min: 5,
+        max: 25,
+        step: 0.5,
+        value: 5,
+        help: "Detector pixel pitch used to derive IFOV from focal length."
+      },
+      {
+        key: "netd",
+        label: "NETD",
+        unit: "mK",
+        min: 10,
+        max: 120,
+        step: 1,
+        value: 25,
+        help: "Noise-equivalent temperature difference for this sensor."
+      },
+      {
+        key: "focalLength",
+        label: "Focal Length",
+        unit: "mm",
+        min: 25,
+        max: 1200,
+        step: 5,
+        value: 45,
+        help: "Effective focal length used directly to derive IFOV."
+      },
+      {
+        key: "fNumber",
+        label: "f/#",
+        unit: "",
+        min: 1,
+        max: 8,
+        step: 0.1,
+        value: 1.4,
+        help: "Focal ratio used to derive aperture diameter from focal length."
+      },
+      {
+        key: "atmosphericTransmission",
+        label: "Path Transmission",
+        unit: "",
+        min: 0.05,
+        max: 1,
+        step: 0.01,
+        value: 0.88,
+        help: "First-order one-way path transmission for this sensor path."
+      },
+      {
+        key: "cost",
+        label: "System Cost",
+        unit: "$",
+        min: 10000,
+        max: 50000,
+        step: 500,
+        value: 15000,
+        help: "Estimated system procurement cost used for performance-per-dollar metrics."
+      }
+    ]
+  },
+  {
+    key: "bolo",
+    label: "Uncooled Bolometer Parameters",
+    shortLabel: "Uncooled Bolometer",
+    color: "#ff9f6e",
+    description: "Representative uncooled bolometer with larger thermal noise and lower-cost optics.",
+    controls: [
+      {
+        key: "horizontalPixels",
+        label: "Horizontal Pixels",
+        unit: "px",
+        min: 320,
+        max: 4096,
+        step: 16,
+        value: 640,
+        help: "Horizontal detector sample count."
+      },
+      {
+        key: "verticalPixels",
+        label: "Vertical Pixels",
+        unit: "px",
+        min: 256,
+        max: 2160,
+        step: 16,
+        value: 512,
+        help: "Vertical detector sample count."
+      },
+      {
+        key: "pixelPitch",
+        label: "Pixel Pitch",
+        unit: "um",
+        min: 5,
+        max: 35,
+        step: 0.5,
+        value: 12,
+        help: "Detector pixel pitch used to derive IFOV from focal length."
+      },
+      {
+        key: "netd",
+        label: "NETD",
+        unit: "mK",
+        min: 10,
+        max: 120,
+        step: 1,
+        value: 40,
+        help: "Noise-equivalent temperature difference for this sensor."
+      },
+      {
+        key: "focalLength",
+        label: "Focal Length",
+        unit: "mm",
+        min: 25,
+        max: 1200,
+        step: 5,
+        value: 55,
+        help: "Effective focal length used directly to derive IFOV."
+      },
+      {
+        key: "fNumber",
+        label: "f/#",
+        unit: "",
+        min: 1,
+        max: 8,
+        step: 0.1,
+        value: 1.2,
+        help: "Focal ratio used to derive aperture diameter from focal length."
+      },
+      {
+        key: "atmosphericTransmission",
+        label: "Path Transmission",
+        unit: "",
+        min: 0.05,
+        max: 1,
+        step: 0.01,
+        value: 0.82,
+        help: "First-order one-way path transmission for this sensor path."
+      },
+      {
+        key: "cost",
+        label: "System Cost",
+        unit: "$",
+        min: 5000,
+        max: 30000,
+        step: 500,
+        value: 7500,
+        help: "Estimated system procurement cost used for performance-per-dollar metrics."
+      }
+    ]
+  }
+];
+
+const state = createDefaultState();
+
+const sharedControlsGrid = document.getElementById("shared-controls-grid");
+const systemControlsGrid = document.getElementById("system-controls-grid");
+const metricCards = document.getElementById("metric-cards");
+const assumptionsList = document.getElementById("assumptions-list");
+const modelDetailsList = document.getElementById("model-details-list");
+const assumptionsToggle = document.getElementById("assumptions-toggle");
+const assumptionsContent = document.getElementById("assumptions-content");
+const modelDetailsToggle = document.getElementById("model-details-toggle");
+const modelDetailsContent = document.getElementById("model-details-content");
+const rangeChart = document.getElementById("range-chart");
+const thresholdChart = document.getElementById("threshold-chart");
+const economicsChart = document.getElementById("economics-chart");
+const weightedPerformanceDisplay = document.getElementById("weighted-performance-display");
+const presetStatus = document.getElementById("preset-status");
+const scenarioNameInput = document.getElementById("scenario-name");
+const savedScenariosSelect = document.getElementById("saved-scenarios");
+const resetDefaultsButton = document.getElementById("reset-defaults-button");
+const equalIfovButton = document.getElementById("equal-ifov-button");
+const equalHfovButton = document.getElementById("equal-hfov-button");
+const saveScenarioButton = document.getElementById("save-scenario-button");
+const loadScenarioButton = document.getElementById("load-scenario-button");
+const deleteScenarioButton = document.getElementById("delete-scenario-button");
+const exportRangeChartButton = document.getElementById("export-range-chart-button");
+const exportThresholdChartButton = document.getElementById("export-threshold-chart-button");
+const exportEconomicsChartButton = document.getElementById("export-economics-chart-button");
+const printSummaryButton = document.getElementById("print-summary-button");
+
+function createDefaultState() {
+  return {
+    scenario: Object.fromEntries(sharedControls.map((control) => [control.key, control.value])),
+    systems: Object.fromEntries(
+      systems.map((system) => [
+        system.key,
+        Object.fromEntries(system.controls.map((control) => [control.key, control.value]))
+      ])
+    )
+  };
+}
+
+function cloneState(source) {
+  return JSON.parse(JSON.stringify(source));
+}
+
+function formatValue(value, unit) {
+  if (unit === "$") {
+    return `$${Math.round(value).toLocaleString()}`;
+  }
+
+  if (unit === "" && value <= 1) {
+    return value.toFixed(2);
+  }
+
+  if (unit === "m" && value >= 1000) {
+    return `${Math.round(value).toLocaleString()} ${unit}`;
+  }
+
+  return `${Number(value).toLocaleString(undefined, {
+    maximumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 1
+  })} ${unit}`.trim();
+}
+
+function formatCompact(value, unit, digits = 1) {
+  if (unit === "$") {
+    return `$${Math.round(value).toLocaleString()}`;
+  }
+
+  if (unit === "%") {
+    return `${value.toFixed(digits)}%`;
+  }
+
+  if (unit === "m" && value >= 1000) {
+    return `${Math.round(value).toLocaleString()} ${unit}`;
+  }
+
+  return `${Number(value).toLocaleString(undefined, {
+    maximumFractionDigits: digits,
+    minimumFractionDigits: digits === 0 ? 0 : Math.min(digits, 1)
+  })} ${unit}`.trim();
+}
+
+function getSystemControl(systemKey, controlKey) {
+  return systems.find((system) => system.key === systemKey).controls.find((control) => control.key === controlKey);
+}
+
+function quantizeToControl(control, value) {
+  const step = Number(control.step);
+  const min = Number(control.min);
+  const max = Number(control.max);
+  const snapped = min + Math.round((value - min) / step) * step;
+  const clamped = Math.min(Math.max(snapped, min), max);
+  return Number(clamped.toFixed(4));
+}
+
+function createControl(control, value, onInput, idPrefix) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "control";
+
+  const header = document.createElement("div");
+  header.className = "control-header";
+
+  const inputId = `${idPrefix}-${control.key}`;
+
+  const label = document.createElement("label");
+  label.setAttribute("for", inputId);
+  label.textContent = control.label;
+
+  const valueNode = document.createElement("span");
+  valueNode.className = "value";
+  valueNode.id = `${inputId}-value`;
+  valueNode.textContent = formatValue(value, control.unit);
+
+  header.append(label, valueNode);
+
+  const input = document.createElement("input");
+  input.type = "range";
+  input.id = inputId;
+  input.min = control.min;
+  input.max = control.max;
+  input.step = control.step;
+  input.value = value;
+
+  input.addEventListener("input", (event) => {
+    const nextValue = Number(event.target.value);
+    document.getElementById(`${inputId}-value`).textContent = formatValue(nextValue, control.unit);
+    onInput(nextValue);
+    render();
+  });
+
+  const help = document.createElement("p");
+  help.className = "help";
+  help.textContent = `${control.help} Range: ${formatValue(control.min, control.unit)} to ${formatValue(control.max, control.unit)}.`;
+
+  wrapper.append(header, input, help);
+  return wrapper;
+}
+
+function buildControls() {
+  sharedControlsGrid.innerHTML = "";
+  systemControlsGrid.innerHTML = "";
+
+  sharedControls.forEach((control) => {
+    sharedControlsGrid.appendChild(
+      createControl(
+        control,
+        state.scenario[control.key],
+        (nextValue) => {
+          state.scenario[control.key] = nextValue;
+        },
+        "scenario"
+      )
+    );
+  });
+
+  systems.forEach((system) => {
+    const card = document.createElement("section");
+    card.className = `system-parameter-card ${system.key}`;
+
+    const titleBlock = document.createElement("div");
+    titleBlock.className = "system-parameter-header";
+
+    const title = document.createElement("h3");
+    title.textContent = system.label;
+
+    const copy = document.createElement("p");
+    copy.textContent = system.description;
+
+    titleBlock.append(title, copy);
+    card.appendChild(titleBlock);
+
+    const grid = document.createElement("div");
+    grid.className = "controls-grid";
+
+    system.controls.forEach((control) => {
+      grid.appendChild(
+        createControl(
+          control,
+          state.systems[system.key][control.key],
+          (nextValue) => {
+            state.systems[system.key][control.key] = nextValue;
+          },
+          system.key
+        )
+      );
+    });
+
+    card.appendChild(grid);
+    systemControlsGrid.appendChild(card);
+  });
+}
+
+function syncControlValues() {
+  sharedControls.forEach((control) => {
+    const input = document.getElementById(`scenario-${control.key}`);
+    const valueNode = document.getElementById(`scenario-${control.key}-value`);
+    if (input) {
+      input.value = state.scenario[control.key];
+    }
+    if (valueNode) {
+      valueNode.textContent = formatValue(state.scenario[control.key], control.unit);
+    }
+  });
+
+  systems.forEach((system) => {
+    system.controls.forEach((control) => {
+      const input = document.getElementById(`${system.key}-${control.key}`);
+      const valueNode = document.getElementById(`${system.key}-${control.key}-value`);
+      if (input) {
+        input.value = state.systems[system.key][control.key];
+      }
+      if (valueNode) {
+        valueNode.textContent = formatValue(state.systems[system.key][control.key], control.unit);
+      }
+    });
+  });
+}
+
+function sigmoid(value) {
+  return 1 / (1 + Math.exp(-value));
+}
+
+function computePerformance(system, scenario, sensorState) {
+  const pixelPitchMeters = sensorState.pixelPitch * 1e-6;
+  const focalLengthMeters = sensorState.focalLength / 1000;
+  const apertureDiameterMm = sensorState.focalLength / Math.max(sensorState.fNumber, 0.1);
+  const ifovRad = pixelPitchMeters / Math.max(focalLengthMeters, 1e-9);
+  const hfovRad = sensorState.horizontalPixels * ifovRad;
+  const vfovRad = sensorState.verticalPixels * ifovRad;
+  const sceneWidthMeters = scenario.range * hfovRad;
+  const sceneHeightMeters = scenario.range * vfovRad;
+  const thermalSnr =
+    (scenario.deltaT * sensorState.atmosphericTransmission) / Math.max(sensorState.netd / 1000, 1e-9);
+  const snrGain = Math.log2(1 + Math.max(thermalSnr, 0)) / Math.log2(1 + snrReference);
+  const linePairsAcrossTargetAtRange = (rangeMeters) =>
+    scenario.targetSize / (2 * Math.max(rangeMeters, 1) * ifovRad);
+  const effectiveTaskScoreAtRange = (rangeMeters) =>
+    linePairsAcrossTargetAtRange(rangeMeters) * snrGain;
+  const pdAtRangeForThreshold = (rangeMeters, thresholdLinePairs) =>
+    sigmoid(sigmoidSlope * (effectiveTaskScoreAtRange(rangeMeters) - thresholdLinePairs));
+
+  const thresholdRanges = Object.fromEntries(
+    thresholds.map((threshold) => {
+      const baseRange = (scenario.targetSize * snrGain) / (2 * ifovRad * threshold.linePairs);
+      return [threshold.key, Math.max(baseRange, 1)];
+    })
+  );
+
+  const probabilities = Object.fromEntries(
+    thresholds.map((threshold) => [
+      threshold.key,
+      pdAtRangeForThreshold(scenario.range, threshold.linePairs)
+    ])
+  );
+
+  const costPerKm = (rangeMeters) =>
+    rangeMeters > 0 ? sensorState.cost / (rangeMeters / 1000) : Number.POSITIVE_INFINITY;
+
+  const weightedRangeKm = thresholds.reduce(
+    (sum, threshold) => sum + (thresholdRanges[threshold.key] / 1000) * threshold.weight,
+    0
+  );
+
+  return {
+    focalLengthMeters,
+    focalLengthMm: focalLengthMeters * 1000,
+    apertureDiameterMm,
+    ifovRad,
+    ifovUrad: ifovRad * 1e6,
+    hfovDeg: (hfovRad * 180) / Math.PI,
+    vfovDeg: (vfovRad * 180) / Math.PI,
+    sceneWidthMeters,
+    sceneHeightMeters,
+    thermalSnr,
+    snrGain,
+    linePairsAtCurrentRange: linePairsAcrossTargetAtRange(scenario.range),
+    effectiveTaskScoreAtCurrentRange: effectiveTaskScoreAtRange(scenario.range),
+    thresholdRanges,
+    probabilities,
+    scoreAtRange: effectiveTaskScoreAtRange,
+    pdAtRangeForThreshold,
+    costPerDetectionKm: costPerKm(thresholdRanges.detection),
+    costPerRecognitionKm: costPerKm(thresholdRanges.recognition),
+    costPerIdentificationKm: costPerKm(thresholdRanges.identification),
+    weightedPerformancePerDollar: weightedRangeKm / Math.max(sensorState.cost / 1000, 1e-9)
+  };
+}
+
+function computeResults() {
+  return Object.fromEntries(
+    systems.map((system) => [
+      system.key,
+      computePerformance(system, state.scenario, state.systems[system.key])
+    ])
+  );
+}
+
+function appendMetricSection(card, titleText, lines, emphasis = false) {
+  const section = document.createElement("section");
+  section.className = "metric-section";
+  section.innerHTML = `<h4>${titleText}</h4>`;
+
+  lines.forEach(([label, value]) => {
+    const line = document.createElement("div");
+    line.className = emphasis ? "metric-line metric-line-emphasis" : "metric-line";
+    line.innerHTML = `<span>${label}</span><strong>${value}</strong>`;
+    section.appendChild(line);
+  });
+
+  card.appendChild(section);
+}
+
+function buildMetricCards(results) {
+  metricCards.innerHTML = "";
+
+  systems.forEach((system) => {
+    const result = results[system.key];
+    const sensorState = state.systems[system.key];
+    const card = document.createElement("div");
+    card.className = `metric-card ${system.key}`;
+
+    const title = document.createElement("h3");
+    title.textContent = system.shortLabel;
+    card.appendChild(title);
+
+    appendMetricSection(card, "Optics / Geometry", [
+      ["Horizontal x Vertical", `${sensorState.horizontalPixels} x ${sensorState.verticalPixels} px`],
+      ["Focal length", formatCompact(result.focalLengthMm, "mm", 0)],
+      ["Aperture diameter", formatCompact(result.apertureDiameterMm, "mm", 1)],
+      ["IFOV", formatCompact(result.ifovUrad, "urad", 1)],
+      ["HFOV", formatCompact(result.hfovDeg, "deg", 2)],
+      ["VFOV", formatCompact(result.vfovDeg, "deg", 2)],
+      ["Scene width at range", formatCompact(result.sceneWidthMeters, "m", 1)],
+      ["Scene height at range", formatCompact(result.sceneHeightMeters, "m", 1)]
+    ]);
+
+    const performanceLines = [
+      ["Line pairs across target", result.linePairsAtCurrentRange.toFixed(2)],
+      ["Thermal SNR", result.thermalSnr.toFixed(2)],
+      ["Effective task score", result.effectiveTaskScoreAtCurrentRange.toFixed(2)],
+      ["Path transmission", formatCompact(sensorState.atmosphericTransmission, "", 2)],
+      ["Atmospheric model", "First-order scalar approximation"]
+    ];
+
+    thresholds.forEach((threshold) => {
+      performanceLines.push([
+        `${threshold.label} range`,
+        `${Math.round(result.thresholdRanges[threshold.key]).toLocaleString()} m`
+      ]);
+      performanceLines.push([
+        `${threshold.label} Pd`,
+        formatCompact(result.probabilities[threshold.key] * 100, "%", 1)
+      ]);
+    });
+    appendMetricSection(card, "Performance", performanceLines);
+
+    appendMetricSection(
+      card,
+      "Economics",
+      [
+        ["Cost", formatCompact(sensorState.cost, "$", 0)],
+        ["Cost per detection km", formatCompact(result.costPerDetectionKm, "$", 0)],
+        ["Cost per recognition km", formatCompact(result.costPerRecognitionKm, "$", 0)],
+        ["Cost per identification km", formatCompact(result.costPerIdentificationKm, "$", 0)],
+        ["Weighted performance per dollar", `${result.weightedPerformancePerDollar.toFixed(3)} km / $1k`]
+      ],
+      true
+    );
+
+    metricCards.appendChild(card);
+  });
+}
+
+function getAssumptions(results) {
+  return [
+    "The model is first-order and intentionally transparent. It is suitable for early trade studies, not detailed validated performance prediction.",
+    "Small-angle approximations are used for IFOV, HFOV, VFOV, and scene size.",
+    "Atmospheric transmission is treated as a first-order user-supplied scalar for each sensor path and does not vary with range inside the current sweep.",
+    "Thermal contrast is represented by a single apparent delta T input shared across both systems.",
+    "Task thresholds remain anchored to 1, 4, and 8 line pairs for detection, recognition, and identification.",
+    "Detector format mainly changes scene coverage and field of view, while boresight DRI is driven primarily by IFOV, apparent contrast, and thermal SNR.",
+    `The SNR contribution is normalized with a log gain using a reference SNR of ${snrReference}.`,
+    "Preset buttons and saved scenarios only change the current input values; they do not change the underlying equations.",
+    "Saved scenarios stay in browser localStorage on this machine and are not uploaded or synced.",
+    "Chart exports and print/PDF summaries capture the current browser-rendered state of the dashboard.",
+    "If the print summary does not open, the browser may require pop-ups to be allowed for this page.",
+    `Current derived IFOV values: ${systems
+      .map((system) => `${system.shortLabel} ${formatCompact(results[system.key].ifovUrad, "urad", 1)}`)
+      .join("; ")}.`
+  ];
+}
+
+function getModelDetails() {
+  return [
+    "Aperture diameter: D = focal length / f-number",
+    "IFOV: IFOV = pixel pitch / focal length",
+    "HFOV: HFOV = horizontal pixels x IFOV",
+    "VFOV: VFOV = vertical pixels x IFOV",
+    "Scene width at range: width = range x HFOV",
+    "Scene height at range: height = range x VFOV",
+    "Line pairs across target: LP = target size / (2 x range x IFOV)",
+    "Thermal SNR: SNR = (delta T x sensor-path atmospheric transmission) / NETD, with NETD converted from mK to K",
+    `Normalized SNR gain: Gsnr = log2(1 + SNR) / log2(1 + ${snrReference})`,
+    "Effective task score: Score = line pairs across target x Gsnr",
+    `Task probability: Pd = 1 / (1 + exp(-${sigmoidSlope.toFixed(2)} x (Score - task threshold)))`,
+    "Task range: range at which effective task score equals the task threshold, equivalent to about 50% Pd",
+    "Cost per task km: system cost / task range in km",
+    "Weighted performance per dollar: (0.2 x detection km + 0.3 x recognition km + 0.5 x identification km) / cost in $1k",
+    "Equal IFOV Comparison preset adjusts Uncooled Bolometer focal length so its derived IFOV matches the Cooled MWIR IFOV while keeping pixel pitch unchanged.",
+    "Equal HFOV Comparison preset adjusts Uncooled Bolometer focal length so its derived HFOV matches the Cooled MWIR HFOV while keeping bolometer pixel pitch and horizontal pixel count unchanged.",
+    "Detector format affects HFOV, VFOV, and scene coverage even when boresight DRI is similar."
+  ];
+}
+
+function buildAssumptions(results) {
+  assumptionsList.innerHTML = "";
+  modelDetailsList.innerHTML = "";
+
+  getAssumptions(results).forEach((text) => {
+    const item = document.createElement("li");
+    item.textContent = text;
+    assumptionsList.appendChild(item);
+  });
+
+  getModelDetails().forEach((text) => {
+    const item = document.createElement("li");
+    item.textContent = text;
+    modelDetailsList.appendChild(item);
+  });
+}
+
+function toggleModelDetails() {
+  const isCollapsed = modelDetailsContent.classList.contains("is-collapsed");
+  modelDetailsContent.classList.toggle("is-collapsed", !isCollapsed);
+  modelDetailsToggle.textContent = isCollapsed ? "Hide Model Details" : "Show Model Details";
+  modelDetailsToggle.setAttribute("aria-expanded", String(isCollapsed));
+}
+
+function toggleAssumptions() {
+  const isCollapsed = assumptionsContent.classList.contains("is-collapsed");
+  assumptionsContent.classList.toggle("is-collapsed", !isCollapsed);
+  assumptionsToggle.textContent = isCollapsed ? "Hide Assumptions" : "Show Assumptions";
+  assumptionsToggle.setAttribute("aria-expanded", String(isCollapsed));
+}
+
+function buildWeightedPerformanceDisplay(results) {
+  weightedPerformanceDisplay.innerHTML = "";
+  const maxValue = Math.max(...systems.map((system) => results[system.key].weightedPerformancePerDollar), 1e-9);
+
+  systems.forEach((system) => {
+    const row = document.createElement("div");
+    row.className = "mini-score-row";
+
+    const label = document.createElement("span");
+    label.textContent = system.shortLabel;
+
+    const track = document.createElement("div");
+    track.className = "mini-score-bar-track";
+
+    const fill = document.createElement("div");
+    fill.className = "mini-score-bar-fill";
+    fill.style.width = `${(results[system.key].weightedPerformancePerDollar / maxValue) * 100}%`;
+    fill.style.background = system.color;
+    track.appendChild(fill);
+
+    const value = document.createElement("div");
+    value.className = "mini-score-value";
+    value.textContent = `${results[system.key].weightedPerformancePerDollar.toFixed(3)} km / $1k`;
+
+    row.append(label, track, value);
+    weightedPerformanceDisplay.appendChild(row);
+  });
+}
+
+function createSvgElement(tag, attrs = {}) {
+  const element = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, value));
+  return element;
+}
+
+function addText(svg, attrs, text) {
+  const node = createSvgElement("text", attrs);
+  node.textContent = text;
+  svg.appendChild(node);
+  return node;
+}
+
+function pathFromPoints(points) {
+  return points.map((point, index) => `${index === 0 ? "M" : "L"} ${point[0]} ${point[1]}`).join(" ");
+}
+
+function drawRangeChart(results) {
+  const svg = rangeChart;
+  svg.innerHTML = "";
+
+  const width = 920;
+  const height = 420;
+  const margin = { top: 30, right: 28, bottom: 56, left: 84 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const maxRange = Math.max(
+    state.scenario.range * 1.35,
+    ...systems.flatMap((system) => Object.values(results[system.key].thresholdRanges))
+  );
+  const xMax = Math.max(Math.ceil(maxRange / 1000) * 1000, 2000);
+  const yMax = Math.max(
+    10,
+    ...systems.map((system) => results[system.key].scoreAtRange(Math.max(250, state.scenario.range * 0.25)))
+  );
+
+  const xScale = (value) => margin.left + (value / xMax) * plotWidth;
+  const yScale = (value) => margin.top + plotHeight - (Math.min(value, yMax) / yMax) * plotHeight;
+
+  svg.appendChild(createSvgElement("rect", { x: 0, y: 0, width, height, rx: 20, fill: "transparent" }));
+
+  for (let i = 0; i <= 5; i += 1) {
+    const xValue = (xMax / 5) * i;
+    const x = xScale(xValue);
+    svg.appendChild(
+      createSvgElement("line", {
+        x1: x,
+        y1: margin.top,
+        x2: x,
+        y2: margin.top + plotHeight,
+        stroke: "rgba(157, 177, 207, 0.18)"
+      })
+    );
+    addText(svg, { x, y: height - 22, fill: "#9db1cf", "text-anchor": "middle", "font-size": "12" }, `${Math.round(xValue).toLocaleString()}`);
+  }
+
+  for (let i = 0; i <= 5; i += 1) {
+    const yValue = (yMax / 5) * i;
+    const y = yScale(yValue);
+    svg.appendChild(
+      createSvgElement("line", {
+        x1: margin.left,
+        y1: y,
+        x2: margin.left + plotWidth,
+        y2: y,
+        stroke: "rgba(157, 177, 207, 0.18)"
+      })
+    );
+    addText(svg, { x: margin.left - 14, y: y + 4, fill: "#9db1cf", "text-anchor": "end", "font-size": "12" }, `${yValue.toFixed(1)}`);
+  }
+
+  thresholds.forEach((threshold) => {
+    const y = yScale(threshold.linePairs);
+    svg.appendChild(
+      createSvgElement("line", {
+        x1: margin.left,
+        y1: y,
+        x2: margin.left + plotWidth,
+        y2: y,
+        stroke: threshold.color,
+        "stroke-dasharray": "7 7",
+        "stroke-width": "1.4",
+        opacity: "0.85"
+      })
+    );
+    addText(svg, { x: margin.left + 10, y: y - 8, fill: threshold.color, "font-size": "12" }, threshold.label);
+  });
+
+  systems.forEach((system) => {
+    const points = [];
+    const sampleCount = 80;
+    for (let index = 0; index <= sampleCount; index += 1) {
+      const range = 1 + (xMax - 1) * (index / sampleCount);
+      points.push([xScale(range), yScale(results[system.key].scoreAtRange(range))]);
+    }
+
+    svg.appendChild(
+      createSvgElement("path", {
+        d: pathFromPoints(points),
+        fill: "none",
+        stroke: system.color,
+        "stroke-width": "3"
+      })
+    );
+
+    svg.appendChild(
+      createSvgElement("circle", {
+        cx: xScale(state.scenario.range),
+        cy: yScale(results[system.key].effectiveTaskScoreAtCurrentRange),
+        r: 5,
+        fill: system.color,
+        stroke: "#08111f",
+        "stroke-width": "2"
+      })
+    );
+  });
+
+  svg.appendChild(
+    createSvgElement("line", {
+      x1: xScale(state.scenario.range),
+      y1: margin.top,
+      x2: xScale(state.scenario.range),
+      y2: margin.top + plotHeight,
+      stroke: "rgba(238, 244, 255, 0.45)",
+      "stroke-dasharray": "5 8"
+    })
+  );
+
+  addText(
+    svg,
+    {
+      x: xScale(state.scenario.range) + 10,
+      y: margin.top + 18,
+      fill: "#eef4ff",
+      "font-size": "12",
+      "font-weight": "600"
+    },
+    "Current Range"
+  );
+
+  addText(svg, { x: width / 2, y: height - 4, fill: "#eef4ff", "text-anchor": "middle", "font-size": "14", "font-weight": "600" }, "Range (m)");
+  addText(
+    svg,
+    {
+      x: 24,
+      y: height / 2,
+      fill: "#eef4ff",
+      transform: `rotate(-90 24 ${height / 2})`,
+      "text-anchor": "middle",
+      "font-size": "14",
+      "font-weight": "600"
+    },
+    "Effective Task Score"
+  );
+
+  const legendY = 16;
+  systems.forEach((system, index) => {
+    const x = margin.left + index * 180;
+    svg.appendChild(
+      createSvgElement("line", { x1: x, y1: legendY, x2: x + 28, y2: legendY, stroke: system.color, "stroke-width": "3" })
+    );
+    addText(svg, { x: x + 36, y: legendY + 4, fill: "#9db1cf", "font-size": "12" }, system.shortLabel);
+  });
+}
+
+function drawThresholdChart(results) {
+  const svg = thresholdChart;
+  svg.innerHTML = "";
+
+  const width = 920;
+  const height = 420;
+  const margin = { top: 40, right: 30, bottom: 56, left: 84 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const maxRange = Math.max(...systems.flatMap((system) => Object.values(results[system.key].thresholdRanges)));
+  const yMax = Math.max(Math.ceil(maxRange / 1000) * 1000, 1000);
+  const groupWidth = plotWidth / thresholds.length;
+  const barWidth = 58;
+  const yScale = (value) => margin.top + plotHeight - (value / yMax) * plotHeight;
+
+  for (let i = 0; i <= 5; i += 1) {
+    const value = (yMax / 5) * i;
+    const y = yScale(value);
+    svg.appendChild(
+      createSvgElement("line", {
+        x1: margin.left,
+        y1: y,
+        x2: margin.left + plotWidth,
+        y2: y,
+        stroke: "rgba(157, 177, 207, 0.18)"
+      })
+    );
+    addText(svg, { x: margin.left - 14, y: y + 4, fill: "#9db1cf", "text-anchor": "end", "font-size": "12" }, `${Math.round(value).toLocaleString()}`);
+  }
+
+  thresholds.forEach((threshold, index) => {
+    const groupX = margin.left + index * groupWidth + groupWidth / 2;
+    addText(
+      svg,
+      { x: groupX, y: height - 22, fill: "#eef4ff", "text-anchor": "middle", "font-size": "13", "font-weight": "600" },
+      threshold.label
+    );
+
+    systems.forEach((system, systemIndex) => {
+      const value = results[system.key].thresholdRanges[threshold.key];
+      const x = groupX + (systemIndex === 0 ? -barWidth - 8 : 8);
+      const y = yScale(value);
+      const barHeight = plotHeight - (y - margin.top);
+
+      svg.appendChild(
+        createSvgElement("rect", {
+          x,
+          y,
+          width: barWidth,
+          height: barHeight,
+          rx: 12,
+          fill: system.color,
+          opacity: "0.85"
+        })
+      );
+
+      addText(
+        svg,
+        { x: x + barWidth / 2, y: y - 10, fill: "#eef4ff", "text-anchor": "middle", "font-size": "12" },
+        `${Math.round(value).toLocaleString()} m`
+      );
+    });
+  });
+
+  addText(
+    svg,
+    {
+      x: 24,
+      y: height / 2,
+      fill: "#eef4ff",
+      transform: `rotate(-90 24 ${height / 2})`,
+      "text-anchor": "middle",
+      "font-size": "14",
+      "font-weight": "600"
+    },
+    "Estimated 50% Pd Range (m)"
+  );
+
+  const legendY = 18;
+  systems.forEach((system, index) => {
+    const x = margin.left + index * 190;
+    svg.appendChild(
+      createSvgElement("rect", { x, y: legendY - 9, width: 18, height: 18, rx: 5, fill: system.color })
+    );
+    addText(svg, { x: x + 28, y: legendY + 4, fill: "#9db1cf", "font-size": "12" }, system.shortLabel);
+  });
+}
+
+function drawEconomicsChart(results) {
+  const svg = economicsChart;
+  svg.innerHTML = "";
+
+  const width = 920;
+  const height = 420;
+  const margin = { top: 40, right: 30, bottom: 56, left: 96 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const metrics = [
+    { key: "costPerDetectionKm", label: "Detection" },
+    { key: "costPerRecognitionKm", label: "Recognition" },
+    { key: "costPerIdentificationKm", label: "Identification" }
+  ];
+  const maxValue = Math.max(
+    ...systems.flatMap((system) => metrics.map((metric) => results[system.key][metric.key]))
+  );
+  const yMax = Math.max(Math.ceil(maxValue / 1000) * 1000, 1000);
+  const groupWidth = plotWidth / metrics.length;
+  const barWidth = 72;
+  const yScale = (value) => margin.top + plotHeight - (value / yMax) * plotHeight;
+
+  for (let i = 0; i <= 5; i += 1) {
+    const value = (yMax / 5) * i;
+    const y = yScale(value);
+    svg.appendChild(
+      createSvgElement("line", {
+        x1: margin.left,
+        y1: y,
+        x2: margin.left + plotWidth,
+        y2: y,
+        stroke: "rgba(157, 177, 207, 0.18)"
+      })
+    );
+    addText(
+      svg,
+      { x: margin.left - 14, y: y + 4, fill: "#9db1cf", "text-anchor": "end", "font-size": "12" },
+      `$${Math.round(value).toLocaleString()}`
+    );
+  }
+
+  metrics.forEach((metric, index) => {
+    const groupX = margin.left + index * groupWidth + groupWidth / 2;
+    addText(
+      svg,
+      {
+        x: groupX,
+        y: height - 22,
+        fill: "#eef4ff",
+        "text-anchor": "middle",
+        "font-size": "13",
+        "font-weight": "600"
+      },
+      metric.label
+    );
+
+    systems.forEach((system, systemIndex) => {
+      const value = results[system.key][metric.key];
+      const x = groupX + (systemIndex === 0 ? -barWidth - 10 : 10);
+      const y = yScale(value);
+      const barHeight = plotHeight - (y - margin.top);
+
+      svg.appendChild(
+        createSvgElement("rect", {
+          x,
+          y,
+          width: barWidth,
+          height: barHeight,
+          rx: 12,
+          fill: system.color,
+          opacity: "0.85"
+        })
+      );
+
+      addText(
+        svg,
+        {
+          x: x + barWidth / 2,
+          y: y - 10,
+          fill: "#eef4ff",
+          "text-anchor": "middle",
+          "font-size": "12"
+        },
+        `$${Math.round(value).toLocaleString()}`
+      );
+    });
+  });
+
+  addText(
+    svg,
+    {
+      x: 24,
+      y: height / 2,
+      fill: "#eef4ff",
+      transform: `rotate(-90 24 ${height / 2})`,
+      "text-anchor": "middle",
+      "font-size": "14",
+      "font-weight": "600"
+    },
+    "Cost per Task km ($ / km)"
+  );
+
+  const legendY = 18;
+  systems.forEach((system, index) => {
+    const x = margin.left + index * 190;
+    svg.appendChild(
+      createSvgElement("rect", { x, y: legendY - 9, width: 18, height: 18, rx: 5, fill: system.color })
+    );
+    addText(svg, { x: x + 28, y: legendY + 4, fill: "#9db1cf", "font-size": "12" }, system.shortLabel);
+  });
+}
+
+function render() {
+  const results = computeResults();
+  syncControlValues();
+  buildMetricCards(results);
+  buildAssumptions(results);
+  buildWeightedPerformanceDisplay(results);
+  drawRangeChart(results);
+  drawThresholdChart(results);
+  drawEconomicsChart(results);
+}
+
+function loadStoredScenarios() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredScenarios(scenarios) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(scenarios));
+}
+
+function refreshSavedScenarioList() {
+  const scenarios = loadStoredScenarios().sort((a, b) => a.name.localeCompare(b.name));
+  savedScenariosSelect.innerHTML = "";
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = scenarios.length ? "Select a saved scenario" : "No saved scenarios yet";
+  savedScenariosSelect.appendChild(placeholder);
+
+  scenarios.forEach((scenario) => {
+    const option = document.createElement("option");
+    option.value = scenario.name;
+    option.textContent = scenario.name;
+    savedScenariosSelect.appendChild(option);
+  });
+}
+
+function setStatus(message) {
+  presetStatus.textContent = message;
+}
+
+function resetToDefaults() {
+  Object.assign(state.scenario, cloneState(createDefaultState().scenario));
+  Object.keys(state.systems).forEach((systemKey) => {
+    Object.assign(state.systems[systemKey], cloneState(createDefaultState().systems[systemKey]));
+  });
+  scenarioNameInput.value = "";
+  setStatus("Defaults restored for both sensors and the shared scene inputs.");
+  render();
+}
+
+function applyEqualIfovComparison() {
+  const cooledPitchMeters = state.systems.cool.pixelPitch * 1e-6;
+  const cooledFocalMeters = state.systems.cool.focalLength / 1000;
+  const targetIfov = cooledPitchMeters / Math.max(cooledFocalMeters, 1e-9);
+  const boloControl = getSystemControl("bolo", "focalLength");
+  const requiredFocalLengthMm = (state.systems.bolo.pixelPitch * 1e-6 / targetIfov) * 1000;
+  const adjustedFocalLength = quantizeToControl(boloControl, requiredFocalLengthMm);
+  state.systems.bolo.focalLength = adjustedFocalLength;
+  setStatus(
+    `Equal IFOV Comparison adjusted Uncooled Bolometer focal length to ${adjustedFocalLength.toFixed(0)} mm so both systems match the Cooled MWIR IFOV of ${(targetIfov * 1e6).toFixed(1)} urad.`
+  );
+  render();
+}
+
+function applyEqualHfovComparison() {
+  const cooledPitchMeters = state.systems.cool.pixelPitch * 1e-6;
+  const cooledFocalMeters = state.systems.cool.focalLength / 1000;
+  const cooledIfov = cooledPitchMeters / Math.max(cooledFocalMeters, 1e-9);
+  const targetHfov = state.systems.cool.horizontalPixels * cooledIfov;
+  const boloControl = getSystemControl("bolo", "focalLength");
+  const requiredFocalLengthMm =
+    (((state.systems.bolo.pixelPitch * 1e-6) * state.systems.bolo.horizontalPixels) / targetHfov) * 1000;
+  const adjustedFocalLength = quantizeToControl(boloControl, requiredFocalLengthMm);
+  state.systems.bolo.focalLength = adjustedFocalLength;
+  setStatus(
+    `Equal HFOV Comparison adjusted Uncooled Bolometer focal length to ${adjustedFocalLength.toFixed(0)} mm to match the Cooled MWIR HFOV of ${((targetHfov * 180) / Math.PI).toFixed(2)} deg.`
+  );
+  render();
+}
+
+function saveCurrentScenario() {
+  const name = scenarioNameInput.value.trim();
+  if (!name) {
+    setStatus("Enter a scenario name before saving.");
+    return;
+  }
+
+  const scenarios = loadStoredScenarios().filter((scenario) => scenario.name !== name);
+  scenarios.push({
+    name,
+    savedAt: new Date().toISOString(),
+    data: cloneState(state)
+  });
+  writeStoredScenarios(scenarios);
+  refreshSavedScenarioList();
+  savedScenariosSelect.value = name;
+  setStatus(`Saved scenario "${name}" in this browser.`);
+}
+
+function loadSelectedScenario() {
+  const name = savedScenariosSelect.value;
+  if (!name) {
+    setStatus("Choose a saved scenario to load.");
+    return;
+  }
+
+  const scenario = loadStoredScenarios().find((entry) => entry.name === name);
+  if (!scenario) {
+    setStatus("That saved scenario could not be found.");
+    refreshSavedScenarioList();
+    return;
+  }
+
+  Object.assign(state.scenario, cloneState(scenario.data.scenario));
+  Object.keys(state.systems).forEach((systemKey) => {
+    Object.assign(state.systems[systemKey], cloneState(scenario.data.systems[systemKey]));
+  });
+  scenarioNameInput.value = name;
+  setStatus(`Loaded scenario "${name}".`);
+  render();
+}
+
+function deleteSelectedScenario() {
+  const name = savedScenariosSelect.value;
+  if (!name) {
+    setStatus("Choose a saved scenario to delete.");
+    return;
+  }
+
+  const scenarios = loadStoredScenarios().filter((scenario) => scenario.name !== name);
+  writeStoredScenarios(scenarios);
+  refreshSavedScenarioList();
+  if (scenarioNameInput.value.trim() === name) {
+    scenarioNameInput.value = "";
+  }
+  setStatus(`Deleted scenario "${name}" from this browser.`);
+}
+
+async function svgToPngDataUrl(svgElement) {
+  const serializer = new XMLSerializer();
+  const svgText = serializer.serializeToString(svgElement);
+  const viewBox = svgElement.viewBox.baseVal;
+  const width = viewBox && viewBox.width ? viewBox.width : 920;
+  const height = viewBox && viewBox.height ? viewBox.height : 420;
+  const blob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  try {
+    const image = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = url;
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    context.fillStyle = "#08111f";
+    context.fillRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+    return canvas.toDataURL("image/png");
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+async function exportChart(svgElement, filename) {
+  const pngUrl = await svgToPngDataUrl(svgElement);
+  const link = document.createElement("a");
+  link.href = pngUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setStatus(`Exported ${filename}.`);
+}
+
+function getCurrentTimestamp() {
+  return new Date().toLocaleString();
+}
+
+function buildPrintList(items) {
+  return `<ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
+}
+
+function buildPrintMetrics(results) {
+  return systems
+    .map((system) => {
+      const result = results[system.key];
+      const sensorState = state.systems[system.key];
+      const optics = [
+        `Horizontal x Vertical: ${sensorState.horizontalPixels} x ${sensorState.verticalPixels} px`,
+        `Focal length: ${formatCompact(result.focalLengthMm, "mm", 0)}`,
+        `Aperture diameter: ${formatCompact(result.apertureDiameterMm, "mm", 1)}`,
+        `IFOV: ${formatCompact(result.ifovUrad, "urad", 1)}`,
+        `HFOV: ${formatCompact(result.hfovDeg, "deg", 2)}`,
+        `VFOV: ${formatCompact(result.vfovDeg, "deg", 2)}`,
+        `Scene width at range: ${formatCompact(result.sceneWidthMeters, "m", 1)}`,
+        `Scene height at range: ${formatCompact(result.sceneHeightMeters, "m", 1)}`
+      ];
+      const performance = [
+        `Line pairs across target: ${result.linePairsAtCurrentRange.toFixed(2)}`,
+        `Thermal SNR: ${result.thermalSnr.toFixed(2)}`,
+        `Effective task score: ${result.effectiveTaskScoreAtCurrentRange.toFixed(2)}`,
+        `Path transmission: ${formatCompact(sensorState.atmosphericTransmission, "", 2)}`,
+        ...thresholds.flatMap((threshold) => [
+          `${threshold.label} range: ${Math.round(result.thresholdRanges[threshold.key]).toLocaleString()} m`,
+          `${threshold.label} Pd: ${formatCompact(result.probabilities[threshold.key] * 100, "%", 1)}`
+        ])
+      ];
+      const economics = [
+        `Cost: ${formatCompact(sensorState.cost, "$", 0)}`,
+        `Cost per detection km: ${formatCompact(result.costPerDetectionKm, "$", 0)}`,
+        `Cost per recognition km: ${formatCompact(result.costPerRecognitionKm, "$", 0)}`,
+        `Cost per identification km: ${formatCompact(result.costPerIdentificationKm, "$", 0)}`,
+        `Weighted performance per dollar: ${result.weightedPerformancePerDollar.toFixed(3)} km / $1k`
+      ];
+
+      return `
+        <section class="print-card">
+          <h3>${system.shortLabel}</h3>
+          <h4>Inputs</h4>
+          ${buildPrintList(system.controls.map((control) => `${control.label}: ${formatValue(state.systems[system.key][control.key], control.unit)}`))}
+          <h4>Optics / Geometry</h4>
+          ${buildPrintList(optics)}
+          <h4>Performance</h4>
+          ${buildPrintList(performance)}
+          <h4>Economics</h4>
+          ${buildPrintList(economics)}
+        </section>
+      `;
+    })
+    .join("");
+}
+
+function buildPrintScenarioInputs() {
+  return buildPrintList(
+    sharedControls.map((control) => `${control.label}: ${formatValue(state.scenario[control.key], control.unit)}`)
+  );
+}
+
+async function printSummary() {
+  const results = computeResults();
+  const assumptions = getAssumptions(results);
+  const modelDetails = getModelDetails();
+  const rangeChartPng = await svgToPngDataUrl(rangeChart);
+  const thresholdChartPng = await svgToPngDataUrl(thresholdChart);
+  const economicsChartPng = await svgToPngDataUrl(economicsChart);
+  const printWindow = window.open("", "_blank", "width=1200,height=900");
+
+  if (!printWindow) {
+    setStatus("Popup blocking prevented the print view from opening.");
+    return;
+  }
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>DRI Dashboard Summary</title>
+        <style>
+          body { font-family: Arial, sans-serif; color: #111827; margin: 28px; }
+          h1, h2, h3, h4 { margin: 0 0 10px; }
+          p, li { line-height: 1.5; }
+          .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+          .print-card { border: 1px solid #d1d5db; border-radius: 12px; padding: 16px; margin-top: 16px; }
+          .meta { color: #4b5563; margin: 6px 0 18px; }
+          .chart { width: 100%; border: 1px solid #d1d5db; border-radius: 12px; margin-top: 10px; }
+          ul { margin-top: 8px; }
+          @media print {
+            body { margin: 16px; }
+            .page-break { page-break-before: always; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>DRI Dashboard Summary</h1>
+        <p class="meta">Generated: ${getCurrentTimestamp()}</p>
+        <h2>Shared Inputs</h2>
+        ${buildPrintScenarioInputs()}
+        <div class="grid">
+          ${buildPrintMetrics(results)}
+        </div>
+        <div class="page-break"></div>
+        <h2>Charts</h2>
+        <img class="chart" src="${rangeChartPng}" alt="Effective Task Score vs Range chart" />
+        <img class="chart" src="${thresholdChartPng}" alt="Estimated Task Range by Sensor chart" />
+        <img class="chart" src="${economicsChartPng}" alt="Economics Comparison chart" />
+        <h2>Assumptions</h2>
+        ${buildPrintList(assumptions)}
+        <h2>Model Details</h2>
+        ${buildPrintList(modelDetails)}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  setStatus("Opened a print-friendly summary using the current scenario.");
+}
+
+function bindActions() {
+  resetDefaultsButton.addEventListener("click", resetToDefaults);
+  equalIfovButton.addEventListener("click", applyEqualIfovComparison);
+  equalHfovButton.addEventListener("click", applyEqualHfovComparison);
+  saveScenarioButton.addEventListener("click", saveCurrentScenario);
+  loadScenarioButton.addEventListener("click", loadSelectedScenario);
+  deleteScenarioButton.addEventListener("click", deleteSelectedScenario);
+  exportRangeChartButton.addEventListener("click", async () => {
+    await exportChart(rangeChart, "effective-task-score-vs-range.png");
+  });
+  exportThresholdChartButton.addEventListener("click", async () => {
+    await exportChart(thresholdChart, "estimated-task-range-by-sensor.png");
+  });
+  exportEconomicsChartButton.addEventListener("click", async () => {
+    await exportChart(economicsChart, "economics-comparison.png");
+  });
+  printSummaryButton.addEventListener("click", async () => {
+    await printSummary();
+  });
+  assumptionsToggle.addEventListener("click", toggleAssumptions);
+  modelDetailsToggle.addEventListener("click", toggleModelDetails);
+}
+
+buildControls();
+bindActions();
+refreshSavedScenarioList();
+setStatus("Presets change only the current browser session until you save a scenario.");
+render();
+
+</script>
+  </body>
+</html>
